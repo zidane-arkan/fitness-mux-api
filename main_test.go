@@ -105,15 +105,15 @@ func TestCreateExercise(t *testing.T) {
 	json.Unmarshal(response.Body.Bytes(), &m)
 
 	if m["name"] != "Squat" {
-		t.Errorf("Expected exercise name is 'Squat' but get %s", m["name"])
+		t.Errorf("Expected exercise name is 'Squat' but get %v", m["name"])
 	}
 
 	if m["workoutType"] != "strength" {
-		t.Errorf("Expected exercise workoutType is 'Strength' but get %s", m["workoutType"])
+		t.Errorf("Expected exercise workoutType is 'Strength' but get %v", m["workoutType"])
 	}
 
-	if m["sets"] != 4 {
-		t.Errorf("Expected exercise sets is '4' but get %d", m["sets"])
+	if m["sets"] != 4.0 {
+		t.Errorf("Expected exercise sets is '4' but get %v", m["sets"])
 	}
 
 	if m["id"] != 1.0 {
@@ -138,7 +138,7 @@ func addExercises(count int) {
 
 	for i := 0; i < count; i++ {
 		a.DB.Exec(
-			"INSERT INTO exercises(name, workoutType, sets) VALUES(%s, %s, %d)",
+			"INSERT INTO exercises(name, workoutType, sets) VALUES($1, $2, $3)",
 			"Name "+strconv.Itoa(i), "workout "+strconv.Itoa(i), (i+1)*2)
 
 	}
@@ -159,7 +159,7 @@ func TestUpdateExercise(t *testing.T) {
 	var originalExercise map[string]interface{}
 	json.Unmarshal(response.Body.Bytes(), &originalExercise)
 
-	var jsonStr = []byte(`{{"name": "Updated BP", "workoutType": "Update strength", "sets": 5}}`)
+	var jsonStr = []byte(`{"name": "Updated BP", "workoutType": "Update strength", "sets": 5}`)
 	req, _ = http.NewRequest("PUT", "/exercise/1", bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -187,7 +187,7 @@ func TestUpdateExercise(t *testing.T) {
 }
 
 // In this test, we first create a product and test that it exists. We then use the endpoint to delete the product. Finally we try to access the product at the appropriate endpoint and test that it doesn’t exist.
-func TestDeleteProduct(t *testing.T) {
+func TestDeleteExercise(t *testing.T) {
 	clearTable()
 	addExercises(1)
 

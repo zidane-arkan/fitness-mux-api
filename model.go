@@ -16,7 +16,7 @@ type exercise struct {
 // The purpose of this function is to interact with the database, to retrieve an exercise record.
 func (e *exercise) getExercise(db *sql.DB) error {
 	// return errors.New("not implemented")
-	return db.QueryRow("SELECT name, workoutType, sets FROM exercises WHERE id=%d",
+	return db.QueryRow("SELECT name, workoutType, sets FROM exercises WHERE id=$1",
 		e.ID).Scan(&e.Name, &e.WorkoutType, &e.Sets)
 }
 
@@ -35,8 +35,8 @@ func (e *exercise) deleteExercise(db *sql.DB) error {
 func (e *exercise) createExercise(db *sql.DB) error {
 	// return errors.New("not implemented")
 	err := db.QueryRow(
-		"INSERT INTO exercises(name, workoutType, sets) VALUES(%s, %s, %d) RETURNING id",
-		e.Name, e.WorkoutType, e.Sets).Scan(e.ID)
+		"INSERT INTO exercises(name, workoutType, sets) VALUES($1, $2, $3) RETURNING id",
+		e.Name, e.WorkoutType, e.Sets).Scan(&e.ID)
 
 	if err != nil {
 		return err

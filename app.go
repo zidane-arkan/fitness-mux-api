@@ -19,6 +19,14 @@ type App struct {
 	DB     *sql.DB
 }
 
+func (a *App) initializesRoutes() {
+	a.Router.HandleFunc("/exercises", a.getExercises).Methods("GET")
+	a.Router.HandleFunc("/exercise", a.createExercise).Methods("POST")
+	a.Router.HandleFunc("/exercise/{id:[0-9]+}", a.getExercise).Methods("GET")
+	a.Router.HandleFunc("/exercise/{id:[0-9]+}", a.updateExercise).Methods("PUT")
+	a.Router.HandleFunc("/exercise/{id:[0-9]+}", a.deleteExercise).Methods("DELETE")
+}
+
 // The Initialize method will take in the details required to connect to the database.
 // It will create a database connection and wire up the routes to respond according to the requirements.
 func (a *App) Initialize(user, password, dbname string) {
@@ -30,10 +38,14 @@ func (a *App) Initialize(user, password, dbname string) {
 	}
 
 	a.Router = mux.NewRouter()
+
+	a.initializesRoutes()
 }
 
 // The Run method will simply start the application.
-func (a *App) Run(addr string) {}
+func (a *App) Run(addr string) {
+	log.Fatal(http.ListenAndServe(":8010", a.Router))
+}
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})

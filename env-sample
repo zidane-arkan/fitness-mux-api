@@ -1,7 +1,16 @@
 export APP_DB_USERNAME=postgres
-export APP_DB_PASSWORD=1234
+export APP_DB_PASSWORD="1234"
 export APP_DB_NAME=postgres
 
 export TEST_DB_USERNAME=$APP_DB_USERNAME
 export TEST_DB_PASSWORD=$APP_DB_PASSWORD
 export TEST_DB_NAME=$APP_DB_NAME
+
+# Run in powershell
+# $env:APP_DB_USERNAME="postgres"
+# $env:APP_DB_PASSWORD="1234"
+# $env:APP_DB_NAME="postgres"
+
+# $env:TEST_DB_USERNAME=$env:APP_DB_USERNAME
+# $env:TEST_DB_PASSWORD=$env:APP_DB_PASSWORD
+# $env:TEST_DB_NAME=$env:APP_DB_NAME

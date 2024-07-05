@@ -69,3 +69,85 @@ func (a *App) getExercise(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, e)
 }
 
+// 1. A handler to fetch list of exercises
+func (a *App) getExercises(w http.ResponseWriter, r *http.Request) {
+	count, _ := strconv.Atoi(r.FormValue("count"))
+	start, _ := strconv.Atoi(r.FormValue("start"))
+
+	if count < 10 || count < 1 {
+		count = 10
+	}
+	if start < 0 {
+		start = 0
+	}
+
+	exercises, err := getExercises(a.DB, start, count)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, exercises)
+}
+
+// 2. Handler to create a exercise
+func (a *App) createExercise(w http.ResponseWriter, r *http.Request) {
+	var e exercise
+	decoder := json.NewDecoder(r.Body)
+
+	if err := decoder.Decode(&e); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+	}
+
+	defer r.Body.Close()
+
+	if err := e.createExercise(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusCreated, e)
+}
+
+// 3. Handler to update a exercise
+func (a *App) updateExercise(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid exercise id")
+		return
+	}
+
+	var e exercise
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&e); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+	e.ID = id
+
+	if err := e.updateExercise(a.DB); err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, e)
+}
+
+// 4. Handler To delete exercise
+func (a *App) deleteExercise(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid Exercise ID")
+		return
+	}
+
+	e := exercise{ID: id}
+	if err := e.deleteExercise(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
